@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+from schemas.book import BookCreate
+from schemas.book import BookResponse
 
 
 app = FastAPI(
@@ -34,6 +36,7 @@ books = [
     "/books",
     tags=["Books"],
     summary="Get all books",
+    response_model=list[BookResponse]
 )
 async def get_books():
     return books
@@ -43,14 +46,15 @@ async def get_books():
     "/books",
     tags=["Books"],
     summary="Add a new book",
-    status_code=201
+    status_code=201,
+    response_model=BookResponse
 )
-async def add_book(book:dict):
+async def add_book(book:BookCreate):
     new_book = {
-        "id": len(books) + 1,
-        "title": book["title"],
-        "author": book["author"],
-    }
+    "id": len(books) + 1,
+    **book.model_dump(),
+}
+    
     books.append(new_book)
     return new_book
 
