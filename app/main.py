@@ -70,6 +70,33 @@ async def add_book(book:BookCreate):
     return new_book
 
 
+@app.put("/books/{id}",
+    tags=["Books"],
+    summary="Update a book",
+    response_model=BookResponse
+)
+async def update_book(id: int, book: BookCreate):
+    for i, b in enumerate(books):
+        if b["id"] == id:
+            updated_book = {**b, **book.model_dump()}
+            books[i] = updated_book
+            return updated_book
+    raise HTTPException(status_code=404, detail="Book not found")
+
+
+@app.delete("/books/{id}",
+    tags=["Books"],
+    summary="Delete a book",
+    status_code=204
+    
+)
+async def delete_book(id:int):
+    for i, b in enumerate(books):
+        if b["id"] ==id:
+            books.pop(i)
+            return 
+    raise HTTPException(status_code=404, detail="Book not found")
+
 @app.get(
     "/health",
     tags=["Health"],
