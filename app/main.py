@@ -1,6 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from schemas.book import BookCreate
 from schemas.book import BookResponse
+
 
 
 app = FastAPI(
@@ -41,6 +42,16 @@ books = [
 async def get_books():
     return books
 
+
+@app.get(
+    "/books/{id}",
+    response_model=BookResponse,
+)
+async def get_book(id: int):
+    for book in books:
+        if book["id"]==id:
+            return book
+    raise HTTPException(status_code=404, detail="Book not found")
 
 @app.post(
     "/books",
