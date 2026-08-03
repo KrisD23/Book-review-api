@@ -1,55 +1,37 @@
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Query
+
 from schemas.book import BookCreate, BookResponse
+from services import book_service
 
 router = APIRouter(
     prefix="/books",
-    tags=["Books"]
+    tags=["Books"],
 )
 
-
-
-books = [
-    {
-        "id": 1,
-        "title": "Atomic Habits",
-        "author": "James Clear",
-    },
-    {
-        "id": 2,
-        "title": "Clean Code",
-        "author": "Robert C. Martin",
-    },
-]
 
 @router.get(
     "/",
     summary="Get all books",
-    response_model=list[BookResponse]
+    response_model=list[BookResponse],
 )
-async def get_books(author_name: str | None = Query(
-    default=None,
-    min_length=3,
-    max_length=100,
-    description="Filter books by author name",
-    examples=["James Clear", "Robert C. Martin"],
-    alias="author"
-    
-), limit: int | None = Query(
-    default=None,
-    ge=1,
-    le=100,
-    description="Limit the number of books returned",
-    examples=[5, 10, 20],
-)):
-    if author_name:
-        books_list = [book for book in books if book["author"].lower() == author_name.lower()]
-    else:
-        books_list = books
-
-    if limit is not None:
-        books_list = books_list[:limit]
-
-    return books_list
+async def get_books(
+    author_name: str | None = Query(
+        default=None,
+        min_length=3,
+        max_length=100,
+        description="Filter books by author name",
+        examples=["James Clear", "Robert C. Martin"],
+        alias="author",
+    ),
+    limit: int | None = Query(
+        default=None,
+        ge=1,
+        le=100,
+        description="Limit the number of books returned",
+        examples=[5, 10, 20],
+    ),
+):
+    return book_service.get_books(author_name, limit)
 
 
 @router.get(
@@ -57,48 +39,32 @@ async def get_books(author_name: str | None = Query(
     response_model=BookResponse,
 )
 async def get_book(id: int):
-    for book in books:
-        if book["id"]==id:
-            return book
-    raise HTTPException(status_code=404, detail="Book not found")
+    return book_service.get_book_by_id(id)
+
 
 @router.post(
     "/",
     summary="Add a new book",
     status_code=201,
-    response_model=BookResponse
+    response_model=BookResponse,
 )
-async def add_book(book:BookCreate):
-    new_book = {
-    "id": len(books) + 1,
-    **book.model_dump(),
-}
-    
-    books.append(new_book)
-    return new_book
+async def add_book(book: BookCreate):
+    return book_service.create_book(book)
 
 
-@router.put("/{id}",
+@router.put(
+    "/{id}",
     summary="Update a book",
-    response_model=BookResponse
+    response_model=BookResponse,
 )
 async def update_book(id: int, book: BookCreate):
-    for i, b in enumerate(books):
-        if b["id"] == id:
-            updated_book = {**b, **book.model_dump()}
-            books[i] = updated_book
-            return updated_book
-    raise HTTPException(status_code=404, detail="Book not found")
+    return book_service.update_book(id, book)
 
 
-@router.delete("/{id}",
+@router.delete(
+    "/{id}",
     summary="Delete a book",
-    status_code=204
-    
+    status_code=204,
 )
-async def delete_book(id:int):
-    for i, b in enumerate(books):
-        if b["id"] ==id:
-            books.pop(i)
-            return 
-    raise HTTPException(status_code=404, detail="Book not found")
+async def delete_book(id: int):
+    return book_service.delete_book(id)
