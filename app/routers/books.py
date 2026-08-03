@@ -26,12 +26,14 @@ books = [
     summary="Get all books",
     response_model=list[BookResponse]
 )
-async def get_books(author: str | None = Query(
+async def get_books(author_name: str | None = Query(
     default=None,
     min_length=3,
     max_length=100,
     description="Filter books by author name",
     examples=["James Clear", "Robert C. Martin"],
+    alias="author"
+    
 ), limit: int | None = Query(
     default=None,
     ge=1,
@@ -39,8 +41,8 @@ async def get_books(author: str | None = Query(
     description="Limit the number of books returned",
     examples=[5, 10, 20],
 )):
-    if author:
-        books_list = [book for book in books if book["author"].lower() == author.lower()]
+    if author_name:
+        books_list = [book for book in books if book["author"].lower() == author_name.lower()]
     else:
         books_list = books
 
