@@ -1,7 +1,10 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Depends
+from dependencies.common import get_app_info
 
 from schemas.book import BookCreate, BookResponse
 from services import book_service
+
+
 
 router = APIRouter(
     prefix="/books",
@@ -30,7 +33,9 @@ async def get_books(
         description="Limit the number of books returned",
         examples=[5, 10, 20],
     ),
+    app_info = Depends(get_app_info)
 ):
+    print(app_info)
     return book_service.get_books(author_name, limit)
 
 
