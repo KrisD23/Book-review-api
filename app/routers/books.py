@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from schemas.book import BookCreate, BookResponse
 
 router = APIRouter(
@@ -26,8 +26,28 @@ books = [
     summary="Get all books",
     response_model=list[BookResponse]
 )
-async def get_books():
-    return books
+async def get_books(author: str | None = Query(
+    default=None,
+    min_length=3,
+    max_length=100,
+    description="Filter books by author name",
+    examples=["James Clear", "Robert C. Martin"],
+), limit: int | None = Query(
+    default=None,
+    ge=1,
+    le=100,
+    description="Limit the number of books returned",
+    examples=[5, 10, 20],
+)):
+    if author:
+        books_list = [book for book in books if book["author"].lower() == author.lower()]
+    else:
+        books_list = books
+
+    if limit is not None:
+        books_list = books_list[:limit]
+
+    return books_list
 
 
 @router.get(
