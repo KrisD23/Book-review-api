@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Query, Depends
-from dependencies.common import get_app_info
+from dependencies.database import get_db
+from fastapi import Depends
+from psycopg import Connection
 
 from schemas.book import BookCreate, BookResponse
 from services import book_service
@@ -33,10 +35,13 @@ async def get_books(
         description="Limit the number of books returned",
         examples=[5, 10, 20],
     ),
-    app_info = Depends(get_app_info)
+    db: Connection = Depends(get_db),
 ):
-    print(app_info)
-    return book_service.get_books(author_name, limit)
+    return book_service.get_books(
+    db=db,
+    author_name=author_name,
+    limit=limit,
+)
 
 
 @router.get(

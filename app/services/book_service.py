@@ -1,5 +1,10 @@
 from fastapi import HTTPException
 from schemas.book import BookCreate
+from psycopg import Connection
+from schemas.book import BookResponse
+
+
+
 
 books = [
     {
@@ -15,20 +20,22 @@ books = [
 ]
 
 
-def get_books(author_name: str | None = None, limit: int | None = None):
-    if author_name:
-        books_list = [
-            book
-            for book in books
-            if book["author"].lower() == author_name.lower()
-        ]
-    else:
-        books_list = books
+def get_books(db: Connection, author_name=None, limit=None):
+    cursor = db.cursor()
 
-    if limit is not None:
-        books_list = books_list[:limit]
+    cursor.execute("SELECT * FROM books")
 
-    return books_list
+    rows = cursor.fetchall()
+    books = [
+    BookResponse(
+        id=row[0],
+        title=row[1],
+        author=row[2],
+    )
+    for row in rows
+]
+
+    return books
 
 
 def get_book_by_id(id: int):
