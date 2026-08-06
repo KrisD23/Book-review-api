@@ -65,8 +65,8 @@ async def add_book(book: BookCreate, db: Connection = Depends(get_db)):
     summary="Update a book",
     response_model=BookResponse,
 )
-async def update_book(id: int, book: BookCreate):
-    return book_service.update_book(id, book)
+async def update_book(id: int, book: BookCreate, db: Connection = Depends(get_db)):
+    return book_service.update_book(id=id, book=book, db=db)
 
 
 @router.delete(
@@ -74,5 +74,5 @@ async def update_book(id: int, book: BookCreate):
     summary="Delete a book",
     status_code=204,
 )
-async def delete_book(id: int):
-    return book_service.delete_book(id)
+async def delete_book(id: int, db: Connection = Depends(get_db)):
+    return book_service.delete_book(id=id, db=db)

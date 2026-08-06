@@ -69,20 +69,34 @@ def create_book(book: BookCreate, db: Connection):
     return new_book
 
 
-def update_book(id: int, book: BookCreate):
-    for i, b in enumerate(books):
-        if b["id"] == id:
-            updated_book = {**b, **book.model_dump()}
-            books[i] = updated_book
-            return updated_book
+def update_book(id: int, book: BookCreate, db: Connection):
+    cursor = db.cursor()
+    cursor.execute(
+        "UPDATE books SET title = %s, author = %s WHERE id = %s RETURNING *",
+        (book.title, book.author, id),
+    )
+    updated_row = cursor.fetchone()
+    if updated_row:
+        db.commit()
+        return BookResponse(
+            id=updated_row[0],
+            title=updated_row[1],
+            author=updated_row[2],
+        )
 
     raise HTTPException(status_code=404, detail="Book not found")
 
 
-def delete_book(id: int):
-    for i, b in enumerate(books):
-        if b["id"] == id:
-            books.pop(i)
-            return
+def delete_book(id: int, db: Connection):
+    cursor = db.cursor()
+    cursor.execute("DELETE FROM books WHERE id = %s RETURNING *", (id,))
+    deleted_row = cursor.fetchone()
+    if deleted_row:
+        db.commit()
+        return BookResponse(
+            id=deleted_row[0],
+            title=deleted_row[1],
+            author=deleted_row[2],
+        )
 
     raise HTTPException(status_code=404, detail="Book not found")
