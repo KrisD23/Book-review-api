@@ -38,21 +38,34 @@ def get_books(db: Connection, author_name=None, limit=None):
     return books
 
 
-def get_book_by_id(id: int):
-    for book in books:
-        if book["id"] == id:
-            return book
+def get_book_by_id(id: int, db: Connection):
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM books WHERE id = %s", (id,))
+    row = cursor.fetchone()
+    if not row:
+        raise HTTPException(status_code=404, detail="Book not found")
+    return BookResponse(
+        id=row[0],
+        title=row[1],
+        author=row[2],
+    )
 
-    raise HTTPException(status_code=404, detail="Book not found")
 
-
-def create_book(book: BookCreate):
-    new_book = {
-        "id": len(books) + 1,
-        **book.model_dump(),
-    }
-
-    books.append(new_book)
+def create_book(book: BookCreate, db: Connection):
+    cursor = db.cursor()
+    cursor.execute(
+        "INSERT INTO books (title, author) VALUES (%s, %s) RETURNING id",
+        (book.title, book.author),
+    )
+    new_book_id = cursor.fetchone()[0]
+    db.commit()
+    new_book = BookResponse(
+        id=new_book_id,
+        title=book.title,
+        author=book.author,
+    )
+   
+    
     return new_book
 
 

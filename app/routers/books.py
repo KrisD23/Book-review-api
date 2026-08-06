@@ -6,8 +6,6 @@ from psycopg import Connection
 from schemas.book import BookCreate, BookResponse
 from services import book_service
 
-
-
 router = APIRouter(
     prefix="/books",
     tags=["Books"],
@@ -48,8 +46,8 @@ async def get_books(
     "/{id}",
     response_model=BookResponse,
 )
-async def get_book(id: int):
-    return book_service.get_book_by_id(id)
+async def get_book(id: int, db: Connection = Depends(get_db)):
+    return book_service.get_book_by_id(id=id, db=db)
 
 
 @router.post(
@@ -58,8 +56,8 @@ async def get_book(id: int):
     status_code=201,
     response_model=BookResponse,
 )
-async def add_book(book: BookCreate):
-    return book_service.create_book(book)
+async def add_book(book: BookCreate, db: Connection = Depends(get_db)):
+    return book_service.create_book(book=book, db=db)
 
 
 @router.put(
