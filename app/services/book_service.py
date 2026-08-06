@@ -4,28 +4,11 @@ from psycopg import Connection
 from schemas.book import BookResponse
 
 
-
-
-books = [
-    {
-        "id": 1,
-        "title": "Atomic Habits",
-        "author": "James Clear",
-    },
-    {
-        "id": 2,
-        "title": "Clean Code",
-        "author": "Robert C. Martin",
-    },
-]
-
-
 def get_books(db: Connection, author_name=None, limit=None):
-    cursor = db.cursor()
-
-    cursor.execute("SELECT * FROM books")
-
-    rows = cursor.fetchall()
+    with db.cursor() as cursor:
+        cursor.execute("SELECT * FROM books")
+        rows = cursor.fetchall()
+    
     books = [
     BookResponse(
         id=row[0],
@@ -39,9 +22,10 @@ def get_books(db: Connection, author_name=None, limit=None):
 
 
 def get_book_by_id(id: int, db: Connection):
-    cursor = db.cursor()
-    cursor.execute("SELECT * FROM books WHERE id = %s", (id,))
-    row = cursor.fetchone()
+    with db.cursor() as cursor:
+
+        cursor.execute("SELECT * FROM books WHERE id = %s", (id,))
+        row = cursor.fetchone()
     if not row:
         raise HTTPException(status_code=404, detail="Book not found")
     return BookResponse(
@@ -52,12 +36,13 @@ def get_book_by_id(id: int, db: Connection):
 
 
 def create_book(book: BookCreate, db: Connection):
-    cursor = db.cursor()
-    cursor.execute(
-        "INSERT INTO books (title, author) VALUES (%s, %s) RETURNING id",
-        (book.title, book.author),
-    )
-    new_book_id = cursor.fetchone()[0]
+    with db.cursor() as cursor:
+        cursor.execute(
+            "INSERT INTO books (title, author) VALUES (%s, %s) RETURNING id",
+            (book.title, book.author),
+        )
+        new_book_id = cursor.fetchone()[0]
+        
     db.commit()
     new_book = BookResponse(
         id=new_book_id,
@@ -70,12 +55,13 @@ def create_book(book: BookCreate, db: Connection):
 
 
 def update_book(id: int, book: BookCreate, db: Connection):
-    cursor = db.cursor()
-    cursor.execute(
-        "UPDATE books SET title = %s, author = %s WHERE id = %s RETURNING *",
-        (book.title, book.author, id),
-    )
-    updated_row = cursor.fetchone()
+    with db.cursor() as cursor:
+        cursor.execute(
+            "UPDATE books SET title = %s, author = %s WHERE id = %s RETURNING *",
+            (book.title, book.author, id),
+        )
+        updated_row = cursor.fetchone()
+    
     if updated_row:
         db.commit()
         return BookResponse(
@@ -88,9 +74,10 @@ def update_book(id: int, book: BookCreate, db: Connection):
 
 
 def delete_book(id: int, db: Connection):
-    cursor = db.cursor()
-    cursor.execute("DELETE FROM books WHERE id = %s RETURNING *", (id,))
-    deleted_row = cursor.fetchone()
+    with db.cursor() as cursor:
+        cursor.execute("DELETE FROM books WHERE id = %s RETURNING *", (id,))
+        deleted_row = cursor.fetchone()
+    
     if deleted_row:
         db.commit()
         return BookResponse(
