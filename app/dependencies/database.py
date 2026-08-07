@@ -1,5 +1,10 @@
-from fastapi import Request
+from database.session import SessionLocal
 
 
-def get_db(request: Request):
-    return request.app.state.db
+def get_db():
+    db = SessionLocal()
+
+    try:
+        yield db
+    finally:
+        db.close()
