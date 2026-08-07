@@ -45,7 +45,7 @@ async def get_books(
     response_model=BookResponse,
 )
 async def get_book(id: int, db: Session = Depends(get_db)):
-    return book_service.get_book_by_id(id=id, db=db)
+    return book_service.get_book_by_id(book_id=id, db=db)
 
 
 @router.post(
@@ -64,7 +64,7 @@ async def add_book(book: BookCreate, db: Session = Depends(get_db)):
     response_model=BookResponse,
 )
 async def update_book(id: int, book: BookCreate, db: Session = Depends(get_db)):
-    return book_service.update_book(id=id, book=book, db=db)
+    return book_service.update_book(book_id=id, book=book, db=db)
 
 
 @router.delete(
@@ -73,4 +73,4 @@ async def update_book(id: int, book: BookCreate, db: Session = Depends(get_db)):
     status_code=204,
 )
 async def delete_book(id: int, db: Session = Depends(get_db)):
-    return book_service.delete_book(id=id, db=db)
+    return book_service.delete_book(book_id=id, db=db)

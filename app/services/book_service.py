@@ -25,8 +25,8 @@ def get_books(db: Session, author_name=None, limit=None):
     return books
 
 
-def get_book_by_id(id: int, db: Session):
-    statement = select(Book).where(Book.id == id)
+def get_book_by_id(book_id : int, db: Session):
+    statement = select(Book).where(Book.id == book_id)
     result = db.execute(statement)
     book = result.scalar_one_or_none()
 
@@ -49,8 +49,8 @@ def create_book(book: BookCreate, db: Session):
     
 
 
-def update_book(id: int, book: BookCreate, db: Session):
-    statement = select(Book).where(Book.id == id)
+def update_book(book_id : int, book: BookCreate, db: Session):
+    statement = select(Book).where(Book.id == book_id)
     result = db.execute(statement)
     existing_book = result.scalar_one_or_none()
     if existing_book is None:
@@ -68,8 +68,8 @@ def update_book(id: int, book: BookCreate, db: Session):
     return existing_book
 
 
-def delete_book(id: int, db: Session):
-    statement = select(Book).where(Book.id == id)
+def delete_book(book_id : int, db: Session):
+    statement = select(Book).where(Book.id == book_id)
     result = db.execute(statement)
     book = result.scalar_one_or_none()
    
