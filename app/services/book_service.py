@@ -24,69 +24,47 @@ def get_books(db: Session, author_name=None, limit=None):
     return books
 
 
-def get_book_by_id(id: int, db: Connection):
-    with db.cursor() as cursor:
+def get_book_by_id(id: int, db: Session):
+    statement = select(Book).where(Book.id == id)
+    result = db.execute(statement)
+    book = result.scalar_one_or_none()
 
-        cursor.execute("SELECT * FROM books WHERE id = %s", (id,))
-        row = cursor.fetchone()
-    if not row:
+    if book is None:
         raise HTTPException(status_code=404, detail="Book not found")
-    return BookResponse(
-        id=row[0],
-        title=row[1],
-        author=row[2],
-    )
+
+    return book
 
 
-def create_book(book: BookCreate, db: Connection):
-    with db.cursor() as cursor:
-        cursor.execute(
-            "INSERT INTO books (title, author) VALUES (%s, %s) RETURNING id",
-            (book.title, book.author),
-        )
-        new_book_id = cursor.fetchone()[0]
-        
+def create_book(book: BookCreate, db: Session):
+    new_book = Book(title=book.title, author=book.author)
+    db.add(new_book)
     db.commit()
-    new_book = BookResponse(
-        id=new_book_id,
-        title=book.title,
-        author=book.author,
-    )
-   
-    
+    db.refresh(new_book)
     return new_book
-
-
-def update_book(id: int, book: BookCreate, db: Connection):
-    with db.cursor() as cursor:
-        cursor.execute(
-            "UPDATE books SET title = %s, author = %s WHERE id = %s RETURNING *",
-            (book.title, book.author, id),
-        )
-        updated_row = cursor.fetchone()
     
-    if updated_row:
-        db.commit()
-        return BookResponse(
-            id=updated_row[0],
-            title=updated_row[1],
-            author=updated_row[2],
-        )
-
-    raise HTTPException(status_code=404, detail="Book not found")
 
 
-def delete_book(id: int, db: Connection):
-    with db.cursor() as cursor:
-        cursor.execute("DELETE FROM books WHERE id = %s RETURNING *", (id,))
-        deleted_row = cursor.fetchone()
-    
-    if deleted_row:
-        db.commit()
-        return BookResponse(
-            id=deleted_row[0],
-            title=deleted_row[1],
-            author=deleted_row[2],
-        )
+def update_book(id: int, book: BookCreate, db: Session):
+    statement = select(Book).where(Book.id == id)
+    result = db.execute(statement)
+    existing_book = result.scalar_one_or_none()
+    if existing_book is None:
+        raise HTTPException(status_code=404, detail="Book not found")
+    existing_book.title = book.title
+    existing_book.author = book.author
+    db.commit()
+    db.refresh(existing_book)
+    return existing_book
 
-    raise HTTPException(status_code=404, detail="Book not found")
+
+def delete_book(id: int, db: Session):
+    statement = select(Book).where(Book.id == id)
+    result = db.execute(statement)
+    book = result.scalar_one_or_none()
+   
+    if book is None:
+        raise HTTPException(status_code=404, detail="Book not found")
+
+    db.delete(book)
+    db.commit()
+    return book
