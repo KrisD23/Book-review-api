@@ -8,4 +8,8 @@ class UserResponse(BaseModel):
     id: int
     email: str
 
+
+class UserLogin(BaseModel):
+    email: str
+    password: str
    

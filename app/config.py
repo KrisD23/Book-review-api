@@ -11,3 +11,6 @@ class Settings:
     DB_PASSWORD = "password123"
 
 settings = Settings()
+
+JWT_SECRET_KEY = "ilovedogs"
+JWT_ALGORITHM = "HS256"

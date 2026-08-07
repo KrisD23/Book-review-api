@@ -9,5 +9,6 @@ dependencies = [
     "fastapi[standard]>=0.141.1",
     "psycopg[binary]>=3.3.4",
     "pwdlib>=0.3.0",
+    "pyjwt>=2.13.0",
     "sqlalchemy>=2.0.51",
 ]
