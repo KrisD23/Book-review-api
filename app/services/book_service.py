@@ -1,4 +1,5 @@
 from fastapi import HTTPException
+from sqlalchemy.exc import SQLAlchemyError
 from schemas.book import BookCreate
 from psycopg import Connection
 from schemas.book import BookResponse
@@ -38,7 +39,11 @@ def get_book_by_id(id: int, db: Session):
 def create_book(book: BookCreate, db: Session):
     new_book = Book(title=book.title, author=book.author)
     db.add(new_book)
-    db.commit()
+    try :
+        db.commit()
+    except SQLAlchemyError:
+        db.rollback()
+        raise 
     db.refresh(new_book)
     return new_book
     
@@ -52,7 +57,13 @@ def update_book(id: int, book: BookCreate, db: Session):
         raise HTTPException(status_code=404, detail="Book not found")
     existing_book.title = book.title
     existing_book.author = book.author
-    db.commit()
+
+    try :
+        db.commit()
+    except SQLAlchemyError:
+        db.rollback()
+        raise
+    
     db.refresh(existing_book)
     return existing_book
 
@@ -66,5 +77,9 @@ def delete_book(id: int, db: Session):
         raise HTTPException(status_code=404, detail="Book not found")
 
     db.delete(book)
-    db.commit()
+    try:
+        db.commit()
+    except SQLAlchemyError:
+        db.rollback()
+        raise
     return book
