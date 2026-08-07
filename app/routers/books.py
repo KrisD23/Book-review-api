@@ -1,8 +1,6 @@
 from fastapi import APIRouter, Query, Depends
 from dependencies.database import get_db
-from fastapi import Depends
-from psycopg import Connection
-
+from sqlalchemy.orm import Session
 from schemas.book import BookCreate, BookResponse
 from services import book_service
 
@@ -33,7 +31,7 @@ async def get_books(
         description="Limit the number of books returned",
         examples=[5, 10, 20],
     ),
-    db: Connection = Depends(get_db),
+    db: Session = Depends(get_db),
 ):
     return book_service.get_books(
     db=db,
@@ -46,7 +44,7 @@ async def get_books(
     "/{id}",
     response_model=BookResponse,
 )
-async def get_book(id: int, db: Connection = Depends(get_db)):
+async def get_book(id: int, db: Session = Depends(get_db)):
     return book_service.get_book_by_id(id=id, db=db)
 
 
@@ -56,7 +54,7 @@ async def get_book(id: int, db: Connection = Depends(get_db)):
     status_code=201,
     response_model=BookResponse,
 )
-async def add_book(book: BookCreate, db: Connection = Depends(get_db)):
+async def add_book(book: BookCreate, db: Session = Depends(get_db)):
     return book_service.create_book(book=book, db=db)
 
 
@@ -65,7 +63,7 @@ async def add_book(book: BookCreate, db: Connection = Depends(get_db)):
     summary="Update a book",
     response_model=BookResponse,
 )
-async def update_book(id: int, book: BookCreate, db: Connection = Depends(get_db)):
+async def update_book(id: int, book: BookCreate, db: Session = Depends(get_db)):
     return book_service.update_book(id=id, book=book, db=db)
 
 
@@ -74,5 +72,5 @@ async def update_book(id: int, book: BookCreate, db: Connection = Depends(get_db
     summary="Delete a book",
     status_code=204,
 )
-async def delete_book(id: int, db: Connection = Depends(get_db)):
+async def delete_book(id: int, db: Session = Depends(get_db)):
     return book_service.delete_book(id=id, db=db)

@@ -3,20 +3,23 @@ from schemas.book import BookCreate
 from psycopg import Connection
 from schemas.book import BookResponse
 
+from sqlalchemy import select
+from models.book import Book
+from sqlalchemy.orm import Session
 
-def get_books(db: Connection, author_name=None, limit=None):
-    with db.cursor() as cursor:
-        cursor.execute("SELECT * FROM books")
-        rows = cursor.fetchall()
-    
-    books = [
-    BookResponse(
-        id=row[0],
-        title=row[1],
-        author=row[2],
-    )
-    for row in rows
-]
+
+def get_books(db: Session, author_name=None, limit=None):
+    statement = select(Book)
+
+    if author_name:
+        statement = statement.where(Book.author == author_name)
+
+    if limit:
+        statement = statement.limit(limit)
+
+    result = db.execute(statement)
+
+    books = result.scalars().all()
 
     return books
 
