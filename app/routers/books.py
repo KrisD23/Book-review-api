@@ -35,15 +35,14 @@ async def get_books(
         examples=[5, 10, 20],
     ),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
     
 ):
-    
-    
-    
     return book_service.get_books(
     db=db,
     author_name=author_name,
     limit=limit,
+    user_id=current_user.id
 )
 
 
@@ -61,8 +60,8 @@ async def get_book(id: int, db: Session = Depends(get_db)):
     status_code=201,
     response_model=BookResponse,
 )
-async def add_book(book: BookCreate, db: Session = Depends(get_db)):
-    return book_service.create_book(book=book, db=db)
+async def add_book(book: BookCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return book_service.create_book(book=book, db=db, user_id=current_user.id)
 
 
 @router.put(

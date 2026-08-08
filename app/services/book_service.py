@@ -9,8 +9,8 @@ from models.book import Book
 from sqlalchemy.orm import Session
 
 
-def get_books(db: Session, author_name=None, limit=None):
-    statement = select(Book)
+def get_books(db: Session,user_id:int, author_name=None, limit=None):
+    statement = select(Book).where(Book.user_id == user_id)
 
     if author_name:
         statement = statement.where(Book.author == author_name)
@@ -36,8 +36,8 @@ def get_book_by_id(book_id : int, db: Session):
     return book
 
 
-def create_book(book: BookCreate, db: Session):
-    new_book = Book(title=book.title, author=book.author)
+def create_book(book: BookCreate, db: Session, user_id: int):
+    new_book = Book(title=book.title, author=book.author, user_id=user_id)
     db.add(new_book)
     try :
         db.commit()
