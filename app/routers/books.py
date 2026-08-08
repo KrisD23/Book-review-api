@@ -44,7 +44,12 @@ async def get_books(
     description="Field to sort by",
     
     ),
-
+    search: str | None = Query(
+    default=None,
+    min_length=2,
+    max_length=100,
+    description="Search books by title or author",
+    ),
     sort_order: Literal["asc", "desc"] = Query(
     default="asc",
     description="Sort order: asc or desc",
@@ -60,6 +65,7 @@ async def get_books(
     offset=offset,
     sort_by=sort_by,
     sort_order=sort_order,
+    search=search,
     user_id=current_user.id
 )
 

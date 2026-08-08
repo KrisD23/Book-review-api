@@ -4,18 +4,29 @@ from exceptions.custom import BookNotFoundError
 from schemas.book import BookCreate
 from psycopg import Connection
 from schemas.book import BookResponse
+from sqlalchemy import or_
 
 from sqlalchemy import select
 from models.book import Book
 from sqlalchemy.orm import Session
 
 
-def get_books(db: Session,user_id:int,limit: int, sort_by: str, sort_order: str, offset: int, author_name=None):
+def get_books(db: Session,user_id:int,limit: int, sort_by: str, sort_order: str, offset: int, author_name=None, search: str | None = None):
     statement = select(Book).where(Book.user_id == user_id)
 
 
     if author_name:
         statement = statement.where(Book.author == author_name)
+
+    if search:
+        pattern = f"%{search}%"
+
+        statement = statement.where(
+            or_(
+                Book.title.ilike(pattern),
+                Book.author.ilike(pattern),
+            )
+        )
 
     sort_columns = {
         "id": Book.id,
