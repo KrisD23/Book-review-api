@@ -49,9 +49,10 @@ async def get_books(
 @router.get(
     "/{id}",
     response_model=BookResponse,
+
 )
-async def get_book(id: int, db: Session = Depends(get_db)):
-    return book_service.get_book_by_id(book_id=id, db=db)
+async def get_book(id: int, db: Session = Depends(get_db),current_user: User = Depends(get_current_user)):
+    return book_service.get_book_by_id(book_id=id, db=db, user_id=current_user.id)
 
 
 @router.post(
@@ -69,8 +70,8 @@ async def add_book(book: BookCreate, db: Session = Depends(get_db), current_user
     summary="Update a book",
     response_model=BookResponse,
 )
-async def update_book(id: int, book: BookCreate, db: Session = Depends(get_db)):
-    return book_service.update_book(book_id=id, book=book, db=db)
+async def update_book(id: int, book: BookCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return book_service.update_book(book_id=id, book=book, db=db, user_id=current_user.id)
 
 
 @router.delete(
@@ -78,5 +79,5 @@ async def update_book(id: int, book: BookCreate, db: Session = Depends(get_db)):
     summary="Delete a book",
     status_code=204,
 )
-async def delete_book(id: int, db: Session = Depends(get_db)):
-    return book_service.delete_book(book_id=id, db=db)
+async def delete_book(id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return book_service.delete_book(book_id=id, db=db, user_id=current_user.id)
