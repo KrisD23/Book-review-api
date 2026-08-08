@@ -56,6 +56,7 @@ dependencies = [
     { name = "psycopg", extra = ["binary"] },
     { name = "pwdlib" },
     { name = "pyjwt" },
+    { name = "python-dotenv" },
     { name = "sqlalchemy" },
 ]
 
@@ -66,6 +67,7 @@ requires-dist = [
     { name = "psycopg", extras = ["binary"], specifier = ">=3.3.4" },
     { name = "pwdlib", specifier = ">=0.3.0" },
     { name = "pyjwt", specifier = ">=2.13.0" },
+    { name = "python-dotenv", specifier = ">=1.2.2" },
     { name = "sqlalchemy", specifier = ">=2.0.51" },
 ]
 
