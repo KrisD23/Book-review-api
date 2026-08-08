@@ -27,12 +27,16 @@ async def get_books(
         examples=["James Clear", "Robert C. Martin"],
         alias="author",
     ),
-    limit: int | None = Query(
-        default=None,
-        ge=1,
-        le=100,
-        description="Limit the number of books returned",
-        examples=[5, 10, 20],
+    limit: int = Query(
+    default=20,
+    ge=1,
+    le=100,
+    description="Number of books to return",
+    ),
+    offset: int = Query(
+        default=0,
+        ge=0,
+        description="Number of books to skip",
     ),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
@@ -42,6 +46,7 @@ async def get_books(
     db=db,
     author_name=author_name,
     limit=limit,
+    offset=offset,
     user_id=current_user.id
 )
 

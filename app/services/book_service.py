@@ -10,14 +10,13 @@ from models.book import Book
 from sqlalchemy.orm import Session
 
 
-def get_books(db: Session,user_id:int, author_name=None, limit=None):
+def get_books(db: Session,user_id:int,limit: int, offset: int, author_name=None):
     statement = select(Book).where(Book.user_id == user_id)
 
     if author_name:
         statement = statement.where(Book.author == author_name)
 
-    if limit:
-        statement = statement.limit(limit)
+    statement = statement.offset(offset).limit(limit)
 
     result = db.execute(statement)
 
