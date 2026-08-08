@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from routers.books import router as books_router
 from routers.auth import router as auth_router
 from middleware.logging import logging_middleware
+from fastapi.middleware.cors import CORSMiddleware
 
 
 app = FastAPI(
@@ -15,6 +16,13 @@ app.include_router(books_router)
 app.include_router(auth_router)
 
 app.middleware("http")(logging_middleware)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get(
