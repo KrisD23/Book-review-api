@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Query, Depends
+from dependencies.auth import get_current_user
 from dependencies.database import get_db
 from sqlalchemy.orm import Session
 from schemas.book import BookCreate, BookResponse
 from services import book_service
+from models.user import User
 
 router = APIRouter(
     prefix="/books",
@@ -32,7 +34,15 @@ async def get_books(
         examples=[5, 10, 20],
     ),
     db: Session = Depends(get_db),
+    current_user : User = Depends(get_current_user)
 ):
+    if current_user is None:
+        raise HTTPException(
+            status_code=401,
+            detail="Unauthorized",
+        )
+    
+    
     return book_service.get_books(
     db=db,
     author_name=author_name,
