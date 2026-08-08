@@ -1,6 +1,7 @@
 from sqlalchemy.exc import SQLAlchemyError,IntegrityError
 from sqlalchemy.orm import Session
 from sqlalchemy import select
+from exceptions.custom import EmailAlreadyRegisteredError
 from schemas.user import UserCreate
 from models.user import User
 from utils.security import create_access_token, hash_password, verify_password
@@ -16,7 +17,7 @@ def create_user(user: UserCreate, db: Session):
 
     except IntegrityError:
         db.rollback()
-        raise HTTPException(status_code=400, detail="Email already exists")
+        raise EmailAlreadyRegisteredError()
     
     except SQLAlchemyError:
         db.rollback()

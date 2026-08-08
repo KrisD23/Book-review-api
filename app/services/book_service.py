@@ -1,5 +1,6 @@
 from fastapi import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
+from exceptions.custom import BookNotFoundError
 from schemas.book import BookCreate
 from psycopg import Connection
 from schemas.book import BookResponse
@@ -31,7 +32,7 @@ def get_book_by_id(book_id : int, db: Session, user_id: int):
     book = result.scalar_one_or_none()
 
     if book is None:
-        raise HTTPException(status_code=404, detail="Book not found")
+        raise BookNotFoundError()
 
     return book
 
@@ -54,7 +55,7 @@ def update_book(book_id : int, book: BookCreate, db: Session, user_id: int):
     result = db.execute(statement)
     existing_book = result.scalar_one_or_none()
     if existing_book is None:
-        raise HTTPException(status_code=404, detail="Book not found")
+        raise BookNotFoundError()
     existing_book.title = book.title
     existing_book.author = book.author
 
@@ -74,7 +75,7 @@ def delete_book(book_id : int, db: Session, user_id: int):
     book = result.scalar_one_or_none()
    
     if book is None:
-        raise HTTPException(status_code=404, detail="Book not found")
+        raise BookNotFoundError()
 
     db.delete(book)
     try:

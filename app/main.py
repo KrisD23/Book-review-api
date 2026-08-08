@@ -1,9 +1,10 @@
 from fastapi import FastAPI
+from exceptions.custom import BookNotFoundError, EmailAlreadyRegisteredError
 from routers.books import router as books_router
 from routers.auth import router as auth_router
 from middleware.logging import logging_middleware
 from fastapi.middleware.cors import CORSMiddleware
-
+from exceptions.handlers import book_not_found_handler, email_already_registered_handler, global_exception_handler
 
 app = FastAPI(
     title="Book Review API",
@@ -12,8 +13,10 @@ app = FastAPI(
     
 )
 
+
 app.include_router(books_router)
 app.include_router(auth_router)
+
 
 app.middleware("http")(logging_middleware)
 app.add_middleware(
@@ -25,6 +28,21 @@ app.add_middleware(
 )
 
 
+app.add_exception_handler(
+    Exception,
+    global_exception_handler,
+)
+
+app.add_exception_handler(
+    BookNotFoundError,
+    book_not_found_handler,
+)
+
+app.add_exception_handler(
+    EmailAlreadyRegisteredError,
+    email_already_registered_handler,
+)
+
 @app.get(
     "/",
     tags=["Root"],
@@ -32,7 +50,6 @@ app.add_middleware(
 )
 async def root():
     return {"message": "Book Review API"}
-
 
 
 
