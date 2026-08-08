@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from routers.books import router as books_router
 from routers.auth import router as auth_router
+from middleware.logging import logging_middleware
 
 
 app = FastAPI(
@@ -12,6 +13,8 @@ app = FastAPI(
 
 app.include_router(books_router)
 app.include_router(auth_router)
+
+app.middleware("http")(logging_middleware)
 
 
 @app.get(
