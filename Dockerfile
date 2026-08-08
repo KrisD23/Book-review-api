@@ -9,6 +9,9 @@ COPY pyproject.toml uv.lock ./
 RUN uv sync --locked
 
 COPY app ./app
+COPY alembic.ini ./
+COPY alembic ./alembic
+
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
