@@ -3,7 +3,7 @@ from fastapi import Request
 import logging
 
 
-logger = logging.getLogger("app.request")
+logger = logging.getLogger("uvicorn.error")
 logger.setLevel(logging.INFO)
 
 
