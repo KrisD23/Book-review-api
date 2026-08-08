@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from schemas.book import BookCreate, BookResponse
 from services import book_service
 from models.user import User
+from typing import Literal
 
 router = APIRouter(
     prefix="/books",
@@ -38,6 +39,16 @@ async def get_books(
         ge=0,
         description="Number of books to skip",
     ),
+    sort_by: Literal["id", "title", "author"] = Query(
+    default="id",
+    description="Field to sort by",
+    
+    ),
+
+    sort_order: Literal["asc", "desc"] = Query(
+    default="asc",
+    description="Sort order: asc or desc",
+    ),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
     
@@ -47,6 +58,8 @@ async def get_books(
     author_name=author_name,
     limit=limit,
     offset=offset,
+    sort_by=sort_by,
+    sort_order=sort_order,
     user_id=current_user.id
 )
 

@@ -10,11 +10,25 @@ from models.book import Book
 from sqlalchemy.orm import Session
 
 
-def get_books(db: Session,user_id:int,limit: int, offset: int, author_name=None):
+def get_books(db: Session,user_id:int,limit: int, sort_by: str, sort_order: str, offset: int, author_name=None):
     statement = select(Book).where(Book.user_id == user_id)
+
 
     if author_name:
         statement = statement.where(Book.author == author_name)
+
+    sort_columns = {
+        "id": Book.id,
+        "title": Book.title,
+        "author": Book.author,
+    }
+
+    sort_column = sort_columns[sort_by]
+
+    if sort_order == "desc":
+        statement = statement.order_by(sort_column.desc())
+    else:
+        statement = statement.order_by(sort_column.asc())
 
     statement = statement.offset(offset).limit(limit)
 
