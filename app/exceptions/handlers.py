@@ -2,7 +2,7 @@ from fastapi import Request
 from fastapi.responses import JSONResponse
 import logging
 
-from exceptions.custom import BookNotFoundError, EmailAlreadyRegisteredError
+from app.exceptions.custom import BookNotFoundError, EmailAlreadyRegisteredError
 
 logger = logging.getLogger("uvicorn.error")
 

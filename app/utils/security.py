@@ -2,7 +2,7 @@ from pwdlib import PasswordHash
 from pwdlib.hashers.argon2 import Argon2Hasher
 import jwt
 from datetime import datetime, timedelta, timezone
-from config import settings
+from app.config import settings
 
 password_hash = PasswordHash((Argon2Hasher(),))
 

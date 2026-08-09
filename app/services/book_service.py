@@ -1,13 +1,13 @@
 from fastapi import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
-from exceptions.custom import BookNotFoundError
-from schemas.book import BookCreate
+from app.exceptions.custom import BookNotFoundError
+from app.schemas.book import BookCreate
 from psycopg import Connection
-from schemas.book import BookResponse
+from app.schemas.book import BookResponse
 from sqlalchemy import or_
 
 from sqlalchemy import select
-from models.book import Book
+from app.models.book import Book
 from sqlalchemy.orm import Session
 
 

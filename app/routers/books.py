@@ -1,10 +1,10 @@
 from fastapi import APIRouter, HTTPException, Query, Depends
-from dependencies.auth import get_current_user
-from dependencies.database import get_db
+from app.dependencies.auth import get_current_user
+from app.dependencies.database import get_db
 from sqlalchemy.orm import Session
-from schemas.book import BookCreate, BookResponse
-from services import book_service
-from models.user import User
+from app.schemas.book import BookCreate, BookResponse
+from app.services import book_service
+from app.models.user import User
 from typing import Literal
 from fastapi import File, UploadFile
 

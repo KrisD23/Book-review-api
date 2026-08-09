@@ -1,10 +1,10 @@
 from sqlalchemy.exc import SQLAlchemyError,IntegrityError
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-from exceptions.custom import EmailAlreadyRegisteredError
-from schemas.user import UserCreate
-from models.user import User
-from utils.security import create_access_token, hash_password, verify_password
+from app.exceptions.custom import EmailAlreadyRegisteredError
+from app.schemas.user import UserCreate
+from app.models.user import User
+from app.utils.security import create_access_token, hash_password, verify_password
 from fastapi import HTTPException
 
 
