@@ -1,3 +1,5 @@
+import pytest
+from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -7,8 +9,6 @@ from app.dependencies.database import get_db
 from app.main import app
 from app.models.book import Book
 from app.models.user import User
-import pytest
-from fastapi.testclient import TestClient
 
 
 TEST_DATABASE_URL = (
@@ -31,18 +31,29 @@ TestingSessionLocal = sessionmaker(
 Base.metadata.create_all(bind=test_engine)
 
 
-def override_get_db():
-    db = TestingSessionLocal()
+@pytest.fixture
+def db_session():
+    connection = test_engine.connect()
+    transaction = connection.begin()
+
+    session = TestingSessionLocal(bind=connection)
 
     try:
-        yield db
+        yield session
     finally:
-        db.close()
+        session.close()
+        transaction.rollback()
+        connection.close()
 
-
-app.dependency_overrides[get_db] = override_get_db
 
 @pytest.fixture
-def client():
+def client(db_session):
+    def override_get_db():
+        yield db_session
+
+    app.dependency_overrides[get_db] = override_get_db
+
     with TestClient(app) as test_client:
         yield test_client
+
+    app.dependency_overrides.clear()

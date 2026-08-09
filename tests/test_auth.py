@@ -7,4 +7,4 @@ def test_register_user(client):
         },
     )
 
-    assert response.status_code == 201
+    assert response.status_code == 201, response.text
