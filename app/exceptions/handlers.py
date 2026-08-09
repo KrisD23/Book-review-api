@@ -1,4 +1,4 @@
-from fastapi import Request
+from fastapi import Request, status
 from fastapi.responses import JSONResponse
 import logging
 
@@ -36,6 +36,6 @@ async def email_already_registered_handler(
     exc: EmailAlreadyRegisteredError,
 ):
     return JSONResponse(
-        status_code=400,
+        status_code=status.HTTP_409_CONFLICT,
         content={"detail": "Email already registered"},
     )
