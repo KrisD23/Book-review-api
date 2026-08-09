@@ -7,12 +7,17 @@ from schemas.user import UserCreate, UserResponse
 from services.auth_service import create_user
 from services.auth_service import login_user as login_user_service
 
+from fastapi import BackgroundTasks
+from tasks.email import send_welcome_email
+
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 @router.post("/register", response_model=UserResponse, status_code=201)
-async def register_user(user: UserCreate, db: Session = Depends(get_db)):
-    return create_user(user, db)
+async def register_user(user: UserCreate,background_tasks: BackgroundTasks , db: Session = Depends(get_db), ):
+    created_user = create_user(user, db)
+    background_tasks.add_task(send_welcome_email, email=created_user.email)
+    return created_user
 
 @router.post("/login")
 async def login_user( db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()):
