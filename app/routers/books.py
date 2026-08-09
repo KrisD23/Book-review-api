@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Query, Depends
+from fastapi import APIRouter, HTTPException, Query, Depends
 from dependencies.auth import get_current_user
 from dependencies.database import get_db
 from sqlalchemy.orm import Session
@@ -6,6 +6,8 @@ from schemas.book import BookCreate, BookResponse
 from services import book_service
 from models.user import User
 from typing import Literal
+from fastapi import File, UploadFile
+
 
 router = APIRouter(
     prefix="/books",
@@ -88,6 +90,27 @@ async def get_book(id: int, db: Session = Depends(get_db),current_user: User = D
 async def add_book(book: BookCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     return book_service.create_book(book=book, db=db, user_id=current_user.id)
 
+@router.post("/{id}/cover")
+async def upload_book_cover(
+    id: int,
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+):
+    allowed_types = {
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+    }
+    if file.content_type not in allowed_types:
+        raise HTTPException(
+        status_code=400,
+        detail="Only JPEG, PNG and WebP images are allowed",
+        )
+
+    return {
+    "filename": file.filename,
+    "content_type": file.content_type,
+}
 
 @router.put(
     "/{id}",
