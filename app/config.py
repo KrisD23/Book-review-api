@@ -18,6 +18,7 @@ class Settings:
 
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
     JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
+    TEST_DB_NAME = os.getenv("TEST_DB_NAME", "book_review_test")
 
 
 settings = Settings()
