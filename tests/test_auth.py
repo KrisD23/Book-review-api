@@ -1,3 +1,6 @@
+from unittest.mock import patch
+
+
 def test_register_user(client):
     response = client.post(
         "/auth/register",
@@ -72,3 +75,20 @@ def test_login_nonexistent_user(client):
     )
 
     assert response.status_code == 401
+
+
+def test_register_schedules_welcome_email(client):
+    with patch("app.routers.auth.send_welcome_email") as mock_send_email:
+        response = client.post(
+            "/auth/register",
+            json={
+                "email": "mock@example.com",
+                "password": "password123",
+            },
+        )
+
+        assert response.status_code == 201
+
+        mock_send_email.assert_called_once_with(
+            email="mock@example.com"
+        )
