@@ -77,3 +77,25 @@ def registered_user(client):
     assert response.status_code == 201
 
     return user_data
+
+
+@pytest.fixture
+def auth_token(client, registered_user):
+    response = client.post(
+        "/auth/login",
+        data={
+            "username": registered_user["email"],
+            "password": registered_user["password"],
+        },
+    )
+
+    assert response.status_code == 200
+
+    return response.json()["access_token"]
+
+
+@pytest.fixture
+def auth_headers(auth_token):
+    return {
+        "Authorization": f"Bearer {auth_token}"
+    }
