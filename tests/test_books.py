@@ -378,3 +378,68 @@ def test_sort_books_by_title_descending(client, auth_headers):
         "Clean Code",
         "Atomic Habits",
     ]
+
+
+
+def test_paginate_books(client, auth_headers):
+    for title in [
+        "Book A",
+        "Book B",
+        "Book C",
+        "Book D",
+        "Book E",
+    ]:
+        response = client.post(
+            "/books/",
+            headers=auth_headers,
+            json={
+                "title": title,
+                "author": "Test Author",
+            },
+        )
+
+        assert response.status_code == 201
+
+    response = client.get(
+        "/books/?sort_by=title&sort_order=asc&limit=2&offset=1",
+        headers=auth_headers,
+    )
+
+    assert response.status_code == 200
+
+    books = response.json()
+
+    assert len(books) == 2
+
+    assert [book["title"] for book in books] == [
+        "Book B",
+        "Book C",
+    ]
+
+
+def test_limit_cannot_be_zero(client, auth_headers):
+    response = client.get(
+        "/books/?limit=0",
+        headers=auth_headers,
+    )
+
+    assert response.status_code == 422
+
+
+def test_limit_cannot_exceed_100(client, auth_headers):
+    response = client.get(
+        "/books/?limit=101",
+        headers=auth_headers,
+    )
+
+    assert response.status_code == 422
+
+
+
+def test_offset_cannot_be_negative(client, auth_headers):
+    response = client.get(
+        "/books/?offset=-1",
+        headers=auth_headers,
+    )
+
+    assert response.status_code == 422
