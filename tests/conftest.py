@@ -99,3 +99,34 @@ def auth_headers(auth_token):
     return {
         "Authorization": f"Bearer {auth_token}"
     }
+
+
+@pytest.fixture
+def second_user_auth_headers(client):
+    user_data = {
+        "email": "second@example.com",
+        "password": "password123",
+    }
+
+    register_response = client.post(
+        "/auth/register",
+        json=user_data,
+    )
+
+    assert register_response.status_code == 201
+
+    login_response = client.post(
+        "/auth/login",
+        data={
+            "username": user_data["email"],
+            "password": user_data["password"],
+        },
+    )
+
+    assert login_response.status_code == 200
+
+    token = login_response.json()["access_token"]
+
+    return {
+        "Authorization": f"Bearer {token}"
+    }

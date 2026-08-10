@@ -142,3 +142,82 @@ def test_delete_book(client, auth_headers):
     )
 
     assert get_response.status_code == 404
+
+
+def test_user_cannot_get_another_users_book(
+    client,
+    auth_headers,
+    second_user_auth_headers,
+):
+    create_response = client.post(
+        "/books/",
+        headers=auth_headers,
+        json={
+            "title": "Private Book",
+            "author": "Private Author",
+        },
+    )
+
+    assert create_response.status_code == 201
+
+    book_id = create_response.json()["id"]
+
+    response = client.get(
+        f"/books/{book_id}",
+        headers=second_user_auth_headers,
+    )
+
+    assert response.status_code == 404
+
+
+
+def test_user_cannot_update_another_users_book(
+    client,
+    auth_headers,
+    second_user_auth_headers,
+):
+    create_response = client.post(
+        "/books/",
+        headers=auth_headers,
+        json={
+            "title": "Original",
+            "author": "Author",
+        },
+    )
+
+    book_id = create_response.json()["id"]
+
+    response = client.put(
+        f"/books/{book_id}",
+        headers=second_user_auth_headers,
+        json={
+            "title": "Hacked",
+            "author": "Hacked",
+        },
+    )
+
+    assert response.status_code == 404
+
+
+def test_user_cannot_delete_another_users_book(
+    client,
+    auth_headers,
+    second_user_auth_headers,
+):
+    create_response = client.post(
+        "/books/",
+        headers=auth_headers,
+        json={
+            "title": "Protected Book",
+            "author": "Author",
+        },
+    )
+
+    book_id = create_response.json()["id"]
+
+    response = client.delete(
+        f"/books/{book_id}",
+        headers=second_user_auth_headers,
+    )
+
+    assert response.status_code == 404
