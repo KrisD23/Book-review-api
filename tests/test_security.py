@@ -1,4 +1,6 @@
 from app.utils.security import hash_password, verify_password
+import jwt
+import pytest
 
 from app.utils.security import (
     hash_password,
@@ -53,3 +55,10 @@ def test_decode_access_token():
     payload = decode_access_token(token)
 
     assert payload["sub"] == "123"
+
+
+def test_decode_invalid_access_token():
+    invalid_token = "not-a-valid-token"
+
+    with pytest.raises(jwt.InvalidTokenError):
+        decode_access_token(invalid_token)
