@@ -443,3 +443,44 @@ def test_offset_cannot_be_negative(client, auth_headers):
     )
 
     assert response.status_code == 422
+
+
+
+def test_get_nonexistent_book_returns_404(client, auth_headers):
+    response = client.get(
+        "/books/999999",
+        headers=auth_headers,
+    )
+
+    assert response.status_code == 404
+    assert response.json() == {
+        "detail": "Book not found"
+    }
+
+
+def test_update_nonexistent_book_returns_404(client, auth_headers):
+    response = client.put(
+        "/books/999999",
+        headers=auth_headers,
+        json={
+            "title": "Updated",
+            "author": "Updated Author",
+        },
+    )
+
+    assert response.status_code == 404
+    assert response.json() == {
+        "detail": "Book not found"
+    }
+
+
+def test_delete_nonexistent_book_returns_404(client, auth_headers):
+    response = client.delete(
+        "/books/999999",
+        headers=auth_headers,
+    )
+
+    assert response.status_code == 404
+    assert response.json() == {
+        "detail": "Book not found"
+    }
