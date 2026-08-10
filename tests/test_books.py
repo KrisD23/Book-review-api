@@ -221,3 +221,160 @@ def test_user_cannot_delete_another_users_book(
     )
 
     assert response.status_code == 404
+
+
+
+def test_filter_books_by_author(client, auth_headers):
+    client.post(
+        "/books/",
+        headers=auth_headers,
+        json={
+            "title": "Atomic Habits",
+            "author": "James Clear",
+        },
+    )
+
+    client.post(
+        "/books/",
+        headers=auth_headers,
+        json={
+            "title": "Deep Work",
+            "author": "Cal Newport",
+        },
+    )
+
+    response = client.get(
+        "/books/?author=James Clear",
+        headers=auth_headers,
+    )
+
+    assert response.status_code == 200
+
+    books = response.json()
+
+    assert len(books) == 1
+    assert books[0]["title"] == "Atomic Habits"
+    assert books[0]["author"] == "James Clear"
+
+
+def test_search_books(client, auth_headers):
+    client.post(
+        "/books/",
+        headers=auth_headers,
+        json={
+            "title": "Atomic Habits",
+            "author": "James Clear",
+        },
+    )
+
+    client.post(
+        "/books/",
+        headers=auth_headers,
+        json={
+            "title": "Deep Work",
+            "author": "Cal Newport",
+        },
+    )
+
+    response = client.get(
+        "/books/?search=atomic",
+        headers=auth_headers,
+    )
+
+    assert response.status_code == 200
+
+    books = response.json()
+
+    assert len(books) == 1
+    assert books[0]["title"] == "Atomic Habits"
+
+
+def test_search_books_by_author(client, auth_headers):
+    client.post(
+        "/books/",
+        headers=auth_headers,
+        json={
+            "title": "Atomic Habits",
+            "author": "James Clear",
+        },
+    )
+
+    client.post(
+        "/books/",
+        headers=auth_headers,
+        json={
+            "title": "Deep Work",
+            "author": "Cal Newport",
+        },
+    )
+
+    response = client.get(
+        "/books/?search=newport",
+        headers=auth_headers,
+    )
+
+    assert response.status_code == 200
+
+    books = response.json()
+
+    assert len(books) == 1
+    assert books[0]["author"] == "Cal Newport"
+
+
+
+def test_sort_books_by_title_ascending(client, auth_headers):
+    for title in ["Clean Code", "Atomic Habits", "Deep Work"]:
+        response = client.post(
+            "/books/",
+            headers=auth_headers,
+            json={
+                "title": title,
+                "author": "Test Author",
+            },
+        )
+
+        assert response.status_code == 201
+
+    response = client.get(
+        "/books/?sort_by=title&sort_order=asc",
+        headers=auth_headers,
+    )
+
+    assert response.status_code == 200
+
+    books = response.json()
+
+    assert [book["title"] for book in books] == [
+        "Atomic Habits",
+        "Clean Code",
+        "Deep Work",
+    ]
+
+
+def test_sort_books_by_title_descending(client, auth_headers):
+    for title in ["Clean Code", "Atomic Habits", "Deep Work"]:
+        response = client.post(
+            "/books/",
+            headers=auth_headers,
+            json={
+                "title": title,
+                "author": "Test Author",
+            },
+        )
+
+        assert response.status_code == 201
+
+    response = client.get(
+        "/books/?sort_by=title&sort_order=desc",
+        headers=auth_headers,
+    )
+
+    assert response.status_code == 200
+
+    books = response.json()
+
+    assert [book["title"] for book in books] == [
+        "Deep Work",
+        "Clean Code",
+        "Atomic Habits",
+    ]
