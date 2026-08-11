@@ -51,3 +51,13 @@ jobs:
 
       - name: Run tests with coverage
         run: uv run pytest --cov=app --cov-report=term-missing --cov-fail-under=85
+
+  docker-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build production Docker image
+        run: docker build --target runtime -t book-review-api:ci .
