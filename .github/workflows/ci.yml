@@ -53,6 +53,7 @@ jobs:
         run: uv run pytest --cov=app --cov-report=term-missing --cov-fail-under=85
 
   docker-build:
+    needs: test
     runs-on: ubuntu-latest
 
     steps:
