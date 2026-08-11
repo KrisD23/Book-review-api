@@ -8,6 +8,34 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    env:
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_NAME: book_review_test
+      TEST_DB_NAME: book_review_test
+      DB_USER: krishan
+      DB_PASSWORD: testpassword
+      JWT_SECRET_KEY: test-secret-key-for-ci-only-12345678901234567890
+      JWT_ALGORITHM: HS256
+
+    services:
+      postgres:
+        image: postgres:17
+
+        env:
+          POSTGRES_USER: krishan
+          POSTGRES_PASSWORD: testpassword
+          POSTGRES_DB: book_review_test
+
+        ports:
+          - 5432:5432
+
+        options: >-
+          --health-cmd "pg_isready -U krishan -d book_review_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -21,5 +49,5 @@ jobs:
       - name: Install dependencies
         run: uv sync --locked
 
-      - name: Check pytest
-        run: uv run pytest --version
+      - name: Run tests
+        run: uv run pytest -q
