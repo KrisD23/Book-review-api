@@ -40,8 +40,6 @@ services:
 
     command:
       [
-        "uv",
-        "run",
         "uvicorn",
         "app.main:app",
         "--host",
