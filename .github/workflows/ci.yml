@@ -63,6 +63,7 @@ jobs:
           --cov-fail-under=85
 
   docker-build:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: test
     runs-on: ubuntu-latest
 
