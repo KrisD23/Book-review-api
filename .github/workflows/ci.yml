@@ -127,7 +127,7 @@ jobs:
               "docker stop book-review-api || true",
               "docker rm book-review-api || true",
               "docker run -d --name book-review-api --network book-review-network --restart unless-stopped --env-file /home/ec2-user/book-review-api/.env -p 127.0.0.1:8000:8000 331235584996.dkr.ecr.ap-south-1.amazonaws.com/book-review-api:${{ github.sha }}",
-              "curl --fail http://127.0.0.1:8000/health"
+              "curl --fail --retry 15 --retry-delay 2 --retry-all-errors http://127.0.0.1:8000/health"
             ]' \
             --query "Command.CommandId" \
             --output text)
